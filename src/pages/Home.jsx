@@ -12,10 +12,18 @@ const Home = () => {
       <Navbar />
       <div className="max-w-7xl mx-auto pt-20 px-6">
         <HeroSection />
-        <FeatureSection />
-        <Workflow />
-        <Pricing />
-        <Testimonials />
+        <div id="features">
+          <FeatureSection />
+        </div>
+        <div id="how-it-works">
+          <Workflow />
+        </div>
+        <div id="pricing">
+          <Pricing />
+        </div>
+        <div id="testimonials">
+          <Testimonials />
+        </div>
         <Footer />
       </div>
     </>

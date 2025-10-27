@@ -1,28 +1,38 @@
-import { motion, useInView } from "framer-motion"; // Framer Motion for animations
+import { motion, useInView } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState, useRef } from "react";
-import logo from "../assets/logo.png"; // Placeholder for CIVCON logo
+import { Link, useLocation } from "react-router-dom";
+import logo from "../assets/logo.png";
 import { navItems } from "../constants";
 
 const Navbar = () => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, amount: 0.1 }); // Low threshold for visibility
+  const isInView = useInView(ref, { once: false, amount: 0.1 });
+  const location = useLocation();
 
   const toggleNavbar = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
   };
 
-  // Check active link using window.location.hash
-  const isActive = (href) => window.location.hash === href;
+  // Smooth scroll to section with offset for sticky navbar
+  const scrollToSection = (e, href) => {
+    e.preventDefault();
+    const id = href.replace("#", "");
+    const element = document.getElementById(id);
+    if (element) {
+      const yOffset = -80; // Adjust based on navbar height
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+    setMobileDrawerOpen(false);
+  };
 
-  // Animation variants for navbar
   const navbarVariants = {
     hidden: { opacity: 0, y: -20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
   };
 
-  // Animation variants for mobile drawer
   const drawerVariants = {
     hidden: { opacity: 0, x: "100%" },
     visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: "easeOut" } },
@@ -39,35 +49,33 @@ const Navbar = () => {
     >
       <div className="container px-4 mx-auto relative lg:text-sm">
         <div className="flex justify-between items-center">
-          {/* Logo and Brand */}
+          {/* Logo */}
           <div className="flex items-center flex-shrink-0">
-            <img
-              className="h-10 w-10 mr-2"
-              src={logo}
-              alt="CIVCON Logo"
-            />
+            <img className="h-10 w-10 mr-2" src={logo} alt="CIVCON Logo" />
             <span className="text-xl tracking-tight text-neutral-100">CIVCON</span>
           </div>
 
           {/* Desktop Navigation */}
           <ul className="hidden lg:flex ml-14 space-x-12">
             {navItems.map((item, index) => (
-              <motion.li
-                key={index}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <a
-                  href={item.href}
-                  className={`text-neutral-300 hover:text-green-400 transition-colors duration-200 ${
-                    isActive(item.href)
-                      ? "text-green-400 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[2px] after:bg-green-400 relative"
-                      : ""
-                  }`}
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                >
-                  {item.label}
-                </a>
+              <motion.li key={index} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+                {item.href.startsWith("#") && location.pathname === "/" ? (
+                  <a
+                    href={item.href}
+                    onClick={(e) => scrollToSection(e, item.href)}
+                    className="text-neutral-300 hover:text-green-400 transition-colors duration-200"
+                  >
+                    {item.label}
+                  </a>
+                ) : (
+                  <Link
+                    to={item.href}
+                    className="text-neutral-300 hover:text-green-400 transition-colors duration-200"
+                    onClick={() => setMobileDrawerOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                )}
               </motion.li>
             ))}
           </ul>
@@ -100,11 +108,7 @@ const Navbar = () => {
               whileTap={{ scale: 0.9 }}
               aria-label={mobileDrawerOpen ? "Close mobile menu" : "Open mobile menu"}
             >
-              {mobileDrawerOpen ? (
-                <X className="text-neutral-300 h-6 w-6" />
-              ) : (
-                <Menu className="text-neutral-300 h-6 w-6" />
-              )}
+              {mobileDrawerOpen ? <X className="text-neutral-300 h-6 w-6" /> : <Menu className="text-neutral-300 h-6 w-6" />}
             </motion.button>
           </div>
         </div>
@@ -120,25 +124,28 @@ const Navbar = () => {
           >
             <ul>
               {navItems.map((item, index) => (
-                <motion.li
-                  key={index}
-                  className="py-4"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <a
-                    href={item.href}
-                    className={`text-neutral-300 text-lg hover:text-green-400 transition-colors duration-200 ${
-                      isActive(item.href) ? "text-green-400 underline underline-offset-4" : ""
-                    }`}
-                    onClick={toggleNavbar}
-                    aria-current={isActive(item.href) ? "page" : undefined}
-                  >
-                    {item.label}
-                  </a>
+                <motion.li key={index} className="py-4" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  {item.href.startsWith("#") && location.pathname === "/" ? (
+                    <a
+                      href={item.href}
+                      onClick={(e) => scrollToSection(e, item.href)}
+                      className="text-neutral-300 text-lg hover:text-green-400 transition-colors duration-200"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link
+                      to={item.href}
+                      className="text-neutral-300 text-lg hover:text-green-400 transition-colors duration-200"
+                      onClick={() => setMobileDrawerOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  )}
                 </motion.li>
               ))}
             </ul>
+
             <div className="flex space-x-6 mt-6">
               <motion.a
                 href="#signin"

@@ -20,9 +20,9 @@ export const navItems = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Pricing", href: "#pricing" },
   { label: "Testimonials", href: "#testimonials" },
-  { label: "About", href: "About" },
- 
+  { label: "About", href: "/about" }, 
 ];
+
 
 // Testimonials from Ugandan users (citizens, leaders, journalists)
 export const testimonials = [
