@@ -1,7 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useState, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { navItems } from "../constants";
 
@@ -10,23 +10,48 @@ const Navbar = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.1 });
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const toggleNavbar = () => {
-    setMobileDrawerOpen(!mobileDrawerOpen);
-  };
+  const toggleNavbar = () => setMobileDrawerOpen(!mobileDrawerOpen);
 
-  // Smooth scroll to section with offset for sticky navbar
-  const scrollToSection = (e, href) => {
-    e.preventDefault();
-    const id = href.replace("#", "");
+  // ✅ Smooth scroll to section
+  const scrollToSection = (id) => {
     const element = document.getElementById(id);
     if (element) {
-      const yOffset = -80; // Adjust based on navbar height
+      const yOffset = -80; // Adjust for navbar height
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
-    setMobileDrawerOpen(false);
   };
+
+  // ✅ Handle section navigation (works across pages)
+  const handleNavClick = (e, href) => {
+    e.preventDefault();
+    setMobileDrawerOpen(false);
+
+    if (href.startsWith("#")) {
+      const id = href.replace("#", "");
+
+      if (location.pathname !== "/") {
+        // Navigate home with hash in URL
+        navigate(`/${href}`);
+      } else {
+        // Already home, scroll smoothly
+        scrollToSection(id);
+      }
+    } else {
+      // For normal links like /about
+      navigate(href);
+    }
+  };
+
+  // ✅ Scroll to hash section after navigation (e.g., from /about -> /#pricing)
+  useEffect(() => {
+    if (location.pathname === "/" && location.hash) {
+      const id = location.hash.replace("#", "");
+      setTimeout(() => scrollToSection(id), 300); // delay ensures DOM is ready
+    }
+  }, [location]);
 
   const navbarVariants = {
     hidden: { opacity: 0, y: -20 },
@@ -59,23 +84,13 @@ const Navbar = () => {
           <ul className="hidden lg:flex ml-14 space-x-12">
             {navItems.map((item, index) => (
               <motion.li key={index} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                {item.href.startsWith("#") && location.pathname === "/" ? (
-                  <a
-                    href={item.href}
-                    onClick={(e) => scrollToSection(e, item.href)}
-                    className="text-neutral-300 hover:text-green-400 transition-colors duration-200"
-                  >
-                    {item.label}
-                  </a>
-                ) : (
-                  <Link
-                    to={item.href}
-                    className="text-neutral-300 hover:text-green-400 transition-colors duration-200"
-                    onClick={() => setMobileDrawerOpen(false)}
-                  >
-                    {item.label}
-                  </Link>
-                )}
+                <a
+                  href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  className="text-neutral-300 hover:text-green-400 transition-colors duration-200"
+                >
+                  {item.label}
+                </a>
               </motion.li>
             ))}
           </ul>
@@ -84,6 +99,7 @@ const Navbar = () => {
           <div className="hidden lg:flex justify-center space-x-12 items-center">
             <motion.a
               href="#signin"
+              onClick={(e) => handleNavClick(e, "#signin")}
               className="py-2 px-3 border border-green-700 rounded-md text-neutral-300 hover:bg-green-700/20 transition-colors duration-200"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -92,6 +108,7 @@ const Navbar = () => {
             </motion.a>
             <motion.a
               href="#signup"
+              onClick={(e) => handleNavClick(e, "#signup")}
               className="bg-gradient-to-r from-green-500 to-green-800 py-2 px-3 rounded-md text-white hover:bg-green-600 transition-colors duration-200"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -106,9 +123,12 @@ const Navbar = () => {
               onClick={toggleNavbar}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              aria-label={mobileDrawerOpen ? "Close mobile menu" : "Open mobile menu"}
             >
-              {mobileDrawerOpen ? <X className="text-neutral-300 h-6 w-6" /> : <Menu className="text-neutral-300 h-6 w-6" />}
+              {mobileDrawerOpen ? (
+                <X className="text-neutral-300 h-6 w-6" />
+              ) : (
+                <Menu className="text-neutral-300 h-6 w-6" />
+              )}
             </motion.button>
           </div>
         </div>
@@ -125,45 +145,16 @@ const Navbar = () => {
             <ul>
               {navItems.map((item, index) => (
                 <motion.li key={index} className="py-4" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  {item.href.startsWith("#") && location.pathname === "/" ? (
-                    <a
-                      href={item.href}
-                      onClick={(e) => scrollToSection(e, item.href)}
-                      className="text-neutral-300 text-lg hover:text-green-400 transition-colors duration-200"
-                    >
-                      {item.label}
-                    </a>
-                  ) : (
-                    <Link
-                      to={item.href}
-                      className="text-neutral-300 text-lg hover:text-green-400 transition-colors duration-200"
-                      onClick={() => setMobileDrawerOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  )}
+                  <a
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
+                    className="text-neutral-300 text-lg hover:text-green-400 transition-colors duration-200"
+                  >
+                    {item.label}
+                  </a>
                 </motion.li>
               ))}
             </ul>
-
-            <div className="flex space-x-6 mt-6">
-              <motion.a
-                href="#signin"
-                className="py-2 px-3 border border-green-700 rounded-md text-neutral-300 hover:bg-green-700/20 transition-colors duration-200"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Sign In
-              </motion.a>
-              <motion.a
-                href="#signup"
-                className="py-2 px-3 rounded-md bg-gradient-to-r from-green-500 to-green-800 text-white hover:bg-green-600 transition-colors duration-200"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Join Now
-              </motion.a>
-            </div>
           </motion.div>
         )}
       </div>
