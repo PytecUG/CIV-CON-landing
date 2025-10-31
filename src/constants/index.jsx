@@ -7,18 +7,17 @@ import { Smartphone } from "lucide-react"; // For mobile accessibility
 import { Globe } from "lucide-react"; // For open dialogue
 
 // Profile images for testimonials (retained, but you can replace with Uganda-specific images)
-import user1 from "../assets/profile-pictures/user1.jpg";
-import user2 from "../assets/profile-pictures/user2.jpg";
-import user3 from "../assets/profile-pictures/user3.jpg";
-import user4 from "../assets/profile-pictures/user4.jpg";
-import user5 from "../assets/profile-pictures/user5.jpg";
-import user6 from "../assets/profile-pictures/user6.jpg";
+import user2 from "../assets/profile-pictures/user1.jpg";
+import user1 from "../assets/profile-pictures/user2.jpg";
+import user4 from "../assets/profile-pictures/user3.jpg";
+import user3 from "../assets/profile-pictures/user4.jpg";
+import user6 from "../assets/profile-pictures/user5.jpg";
+import user5 from "../assets/profile-pictures/user6.jpg";
 
 // Navigation items for CIVCON's landing page
 export const navItems = [
   { label: "Features", href: "#features" },
   { label: "How It Works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
   { label: "Testimonials", href: "#testimonials" },
   { label: "About", href: "/about" }, 
 ];
